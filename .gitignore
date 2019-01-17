@@ -1,0 +1,8 @@
+# exclude PHPStorm's dir
+/.idea/
+
+# build dir (e.g. coverage)
+/build/
+
+# exclude composer's vendor dir
+/vendor/

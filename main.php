@@ -1,0 +1,213 @@
+<?php
+
+
+use React\EventLoop\Timer\Timer;
+use \React\Http\Request;
+use \React\Http\Response;
+use \React\EventLoop\Factory;
+use \Voidcontext\Arc\Reactor\App;
+use \Voidcontext\Arc\Reactor\Server\Adapter\ReactHttpServer;
+
+use React\Promise\Deferred;
+use React\ChildProcess\Process;
+
+use \KHR\React\Curl\Curl;
+use \KHR\React\Curl\Exception;
+
+require __DIR__ . "/vendor/autoload.php";
+require(__DIR__. "/config.php");
+
+$startrun = date("Y-m-d H:i:s");
+$loop = Factory::create();
+$curl = new Curl($loop);
+$server = new ReactHttpServer($loop);
+
+$curl->client->enableHeaders();
+
+$app = new App($server, [
+    'port' => 5555,
+]);
+
+$connection = new React\MySQL\Connection($loop, [
+    'dbname' => $sv_config['dbname'],
+    'user'   => $sv_config['user'],
+    'passwd' => $sv_config['passwd']
+]);
+
+$connection->connect(function () {});
+
+function runPayload($payload) {
+	global $loop;
+	$result = '';
+	$deferred = new Deferred();
+	$process  = new Process($payload);
+
+	$process->start($loop);
+
+	$process->stdout->on('data', function ($chunk) use (&$result) {
+		$result .= $chunk;
+	});
+	
+	$process->on('error', function($e) use($deferred) {
+		$deferred->reject($e);
+	});
+
+	$process->on('exit', function ($code, $term) use(&$result, $deferred) {
+
+	    if ($term === null) {
+	       // print_r($result);
+	       // echo 'exit with code ' . $code . PHP_EOL;
+	    } else {
+	      // echo 'terminated with signal ' . $term . PHP_EOL;
+	    }
+		$deferred->resolve($result);
+
+	});
+
+	return $deferred->promise();
+}
+
+$loop->addPeriodicTimer(45, function(Timer $timer) {
+
+	echo date("Y-m-d H:i:s")." - verifica cookie e proxys..\n";
+
+	$payload = "php shild.php";
+	runPayload($payload)
+		->then(function ($value) {
+
+			print_r($value);
+
+	    },
+	    function ($reason) {
+	    	echo "\ndeu error...\n";
+	    }
+	);
+
+});
+
+$loop->addPeriodicTimer(0.5, function(Timer $timer) {
+	echo "\nPassou..";
+});
+
+$app->get('/consulta/{doc}', function (Request $request, Response $response) use($connection, $loop) {
+
+	$verurl = $request->getPath();
+	$verurl = explode("consulta/", $verurl);
+
+	if(isset($verurl[1])) {
+
+		$doc = $verurl[1];
+
+		if(strlen($doc) === 11) {
+			$cpf = $doc;
+		}elseif(strlen($doc) === 14) {
+			$cnpj = $doc;
+		}else{
+			$results = ['msg' => 'doc invalido.'];
+		}
+	}else{
+		$results = ['msg' => 'doc invalido.'];		
+	}
+
+	if(!isset($results)) {
+
+		if(isset($cpf)){
+
+			$payload = "php gambi.php doc=".$cpf;
+
+			runPayload($payload)
+				->then(function ($value) use($response){
+					if(strlen($value) < 40) {
+						$value = 'Opss, deu erro ao consultar...';						
+					}
+					$response->writeHead(200, ["Content-Type" => "text/html"]);
+					$response->write($value);
+					$response->end();
+			    },
+			    function ($reason) use($response) {
+
+					$response->writeHead(200, ["Content-Type" => "text/html"]);
+					$response->write('Opss, deu erro ao consultar....');
+					$response->end();
+			    }
+			);
+
+
+		}elseif(isset($cnpj)) {
+			$results = ['msg' => 'consulta cnpj'];
+			$response->writeHead(200, ["Content-Type" => "application/json"]);
+			$response->write(json_encode($results));
+			$response->end();
+		}else{
+			$results = ['msg' => 'vc fez alguma merda.'];
+			$results = ['msg' => 'consulta cnpj'];
+			$response->writeHead(200, ["Content-Type" => "application/json"]);
+			$response->write(json_encode($results));
+			$response->end();
+		}
+	}
+	
+
+
+
+
+});
+
+
+$app->get('/', function (Request $request, Response $response) use($connection, $loop, &$startrun) {
+
+	$connection->query('select * from contas', function ($command, $conn) use ($request, $loop, $response, &$startrun) {
+	    if ($command->hasError()) {
+
+	        $error = $command->getError();
+	    
+	    } else {
+
+	        $results = $command->resultRows;
+
+			$tudook = array_filter($results, function($elem) use($NUM){
+				if(strlen($elem['proxy']) > 5 and strlen($elem['cookie']) > 10 and $elem['status'] == true) {
+					return $elem;
+				}
+			});
+
+			$tudoruim = array_filter($results, function($elem) use($NUM){
+				if($elem['status'] == false) {
+					return $elem;
+				}
+			});
+
+			$penden_proxy = array_filter($results, function($elem) use($NUM){
+				if(strlen($elem['proxy']) < 5 and $elem['status'] == true) {
+					return $elem;
+				}
+			});
+
+			$penden_sessao = array_filter($results, function($elem) use($NUM){
+				if(strlen($elem['cookie']) < 10 and $elem['status'] == true) {
+					return $elem;
+				}
+			});
+	    }
+		
+		$results = [
+			'total'    => count($results),
+			'ativos'   => count($tudook),
+			'inativos' => count($tudoruim),
+			'pendente rede'   => count($penden_proxy),
+			'pendente sessao' => count($penden_sessao),
+			'status' => true,
+			'start'  => $startrun
+		];
+
+		$response->writeHead(200, ["Content-Type" => "application/json"]);
+		$response->write(json_encode($results));
+		$response->end();
+
+	});
+
+});
+
+
+$app->run();
+$loop->run();

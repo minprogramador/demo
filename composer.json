@@ -1,0 +1,31 @@
+{
+    "name": "minprogramador/demo",
+    "description": "demo, gambiarra loca",
+    "type": "library",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "minprogramador",
+            "email": "minprogramador@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {
+            "Voidcontext\\Arc\\": "src/",
+            "Api\\Boa\\":"src/Apiboa/"
+        }
+    },
+    "require": {
+        "react/http": "^0.4.1",
+        "nikic/fast-route": "^0.6.0",
+        "evenement/evenement": "^2.0",
+        "react/mysql": "0.2.*",
+        "react/child-process": "0.4.1",
+        "nette/database": "^2.4",
+        "khr/react-curl": "^2.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^4.8"
+    }
+}
