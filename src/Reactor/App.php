@@ -165,6 +165,6 @@ class App extends EventEmitter
     {
         $dispatcher = $this->createDispatcher();
         $this->server->attachRequestHandler($this->requestHandler($dispatcher));
-        $this->server->listen($this->config['port']);
+        $this->server->listen($this->config['port'], '0.0.0.0');
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+error_reporting(E_ALL);
+ini_set('error_reporting', E_ALL);
 
 use React\EventLoop\Timer\Timer;
 use \React\Http\Request;
@@ -25,7 +27,7 @@ $server = new ReactHttpServer($loop);
 $curl->client->enableHeaders();
 
 $app = new App($server, [
-    'port' => 5555,
+    'port' => '4444',
 ]);
 
 $connection = new React\MySQL\Connection($loop, [

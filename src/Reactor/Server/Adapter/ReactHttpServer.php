@@ -50,6 +50,6 @@ class ReactHttpServer implements ServerInterface
         $server = new HttpServer($socket);
 
         $server->on('request', $this->requestHandler);
-        $socket->listen($port);
+        $socket->listen($port, '0.0.0.0');
     }
 }
