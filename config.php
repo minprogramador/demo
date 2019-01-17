@@ -9,8 +9,17 @@
 // ];
 
 $sv_config = [
-	'dbname' => 'Fd0teRws8L',
-	'user'   => 'Fd0teRws8L',
-	'passwd' => 'rUccClfdm2',
-	'mysqlsv'=> 'remotemysql.com'
+	'dbname' => 'api_boa',
+	'user'   => 'root',
+	'passwd' => '2019maconhaOk@@',
+	'mysqlsv'=> '127.0.0.1',
+	'key_proxyrotator' => 'FGKb6TcnwUgXP47LkmS9A8NdVhr5syYx'
 ];
+
+// $sv_config = [
+// 	'dbname' => 'Fd0teRws8L',
+// 	'user'   => 'Fd0teRws8L',
+// 	'passwd' => 'rUccClfdm2',
+// 	'mysqlsv'=> 'remotemysql.com',
+// 	'key_proxyrotator' => 'FGKb6TcnwUgXP47LkmS9A8NdVhr5syYx'
+// ];

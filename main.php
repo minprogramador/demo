@@ -27,7 +27,8 @@ $server = new ReactHttpServer($loop);
 $curl->client->enableHeaders();
 
 $app = new App($server, [
-    'port' => '4444',
+    'port' => 5555
+    ,
 ]);
 
 $connection = new React\MySQL\Connection($loop, [
@@ -79,7 +80,7 @@ $loop->addPeriodicTimer(45, function(Timer $timer) {
 		->then(function ($value) {
 
 			print_r($value);
-
+			echo date("Y-m-d H:i:s")." - FIMMM verifica cookie e proxys..\n";
 	    },
 	    function ($reason) {
 	    	echo "\ndeu error...\n";
@@ -87,6 +88,27 @@ $loop->addPeriodicTimer(45, function(Timer $timer) {
 	);
 
 });
+
+//1800
+
+$loop->addPeriodicTimer(60, function(Timer $timer) {
+
+	echo date("Y-m-d H:i:s")." ~ ..::verifica cache de proxys::..\n";
+
+	$payload = "php shild_rede.php";
+	runPayload($payload)
+		->then(function ($value) {
+
+			print_r($value);
+			echo date("Y-m-d H:i:s")." ~ ..:: FIMM verifica cache de proxys::..\n";
+	    },
+	    function ($reason) {
+	    	echo "\ndeu error...\n";
+	    }
+	);
+		
+});
+
 
 $loop->addPeriodicTimer(0.5, function(Timer $timer) {
 	echo "\nPassou..";
@@ -149,10 +171,6 @@ $app->get('/consulta/{doc}', function (Request $request, Response $response) use
 			$response->end();
 		}
 	}
-	
-
-
-
 
 });
 
@@ -192,7 +210,7 @@ $app->get('/', function (Request $request, Response $response) use($connection, 
 				}
 			});
 	    }
-		
+
 		$results = [
 			'total'    => count($results),
 			'ativos'   => count($tudook),
@@ -203,10 +221,36 @@ $app->get('/', function (Request $request, Response $response) use($connection, 
 			'start'  => $startrun
 		];
 
-		$response->writeHead(200, ["Content-Type" => "application/json"]);
-		$response->write(json_encode($results));
-		$response->end();
+		
+		$conn->query('select * from redes', function ($command1, $conn1) use ($request, $loop, $response, &$startrun, $results) {
 
+			if ($command1->hasError()) {
+				$error = $command1->getError();
+			} else {
+				$results1 = $command1->resultRows;
+			}
+
+			$tudook_rede = array_filter($results1, function($elem) {
+				if(strlen($elem['proxy']) > 5 and $elem['ativo'] == true and $elem['status'] == true) {
+					return $elem;
+				}
+			});
+
+			$tudoruim_rede = array_filter($results1, function($elem) {
+				if($elem['ativo'] == false) {
+					return $elem;
+				}
+			});
+
+			$results['rede total'] = count($results1);
+			$results['rede on']    = count($tudook_rede);
+			$results['rede off']   = count($tudoruim_rede);
+
+			$response->writeHead(200, ["Content-Type" => "application/json"]);
+			$response->write(json_encode($results));
+			$response->end();
+
+		});
 	});
 
 });

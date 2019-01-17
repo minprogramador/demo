@@ -24,35 +24,22 @@ $database = new Nette\Database\Connection($dsn, $user, $password);
 
 function getProxy() {
 
-	$curl = curl_init();
+	global $database;
 
-	curl_setopt_array($curl, array(
-	  CURLOPT_URL => "http://68.183.171.32:8888/proxy",
-	  CURLOPT_RETURNTRANSFER => true,
-	  CURLOPT_ENCODING => "",
-	  CURLOPT_MAXREDIRS => 10,
-	  CURLOPT_TIMEOUT => 15,
-	  CURLOPT_CUSTOMREQUEST => "GET",
-	));
+	$query   = 'select * from redes where `update` < NOW() and `ativo`=true  ORDER BY `update` desc limit 10;';
 
-	$response = curl_exec($curl);
-	$err = curl_error($curl);
+	$result = $database->fetchAll($query);
+	$result = json_encode($result);
+	$result = json_decode($result, true);
+	$rand_keys = array_rand($result, 1);
+	$vaipr = $result[$rand_keys];
+	$vaipr = $vaipr['proxy'];
 
-	curl_close($curl);
-
-	if ($err) {
+	if(stristr($vaipr, ':')){
+		return $vaipr;
+	}else{
 		return false;
-	} else {
-
-		$response = json_decode($response);
-
-		if(isset($response->proxy->status) && $response->proxy->status === true) {
-			return $response->proxy->proxy;
-		}else{
-			return false;
-		}
 	}
-
 }
 
 $result = $database->query('SELECT * FROM contas where status = ?', true);
