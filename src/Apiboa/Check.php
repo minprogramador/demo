@@ -38,7 +38,7 @@ class Check
         $headers9[] = "User-Agent: {$userAgent}";
         $headers9[] = "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
         $headers9[] = "Accept-Language: pt-BR,pt;q=0.8,en-US;q=0.5,en;q=0.3";
-        $headers9[] = "Referer: {$url6}";
+        $headers9[] = "Referer: {$url9}";
         $headers9[] = "Dnt: 1";
         $headers9[] = "Connection: keep-alive";
         $headers9[] = "Cookie: ". $cookies;

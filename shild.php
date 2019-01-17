@@ -24,7 +24,7 @@ function getProxy() {
 	$curl = curl_init();
 
 	curl_setopt_array($curl, array(
-	  CURLOPT_URL => "http://68.183.171.32:5555/proxy",
+	  CURLOPT_URL => "http://68.183.171.32:8888/proxy",
 	  CURLOPT_RETURNTRANSFER => true,
 	  CURLOPT_ENCODING => "",
 	  CURLOPT_MAXREDIRS => 10,

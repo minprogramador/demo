@@ -31,7 +31,8 @@ $app = new App($server, [
 $connection = new React\MySQL\Connection($loop, [
     'dbname' => $sv_config['dbname'],
     'user'   => $sv_config['user'],
-    'passwd' => $sv_config['passwd']
+    'passwd' => $sv_config['passwd'],
+    'host'   => $sv_config['mysqlsv']
 ]);
 
 $connection->connect(function () {});
