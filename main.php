@@ -241,10 +241,10 @@ $app->get('/', function (Request $request, Response $response) use($connection, 
 					return $elem;
 				}
 			});
-
 			$results['rede total'] = count($results1);
 			$results['rede on']    = count($tudook_rede);
 			$results['rede off']   = count($tudoruim_rede);
+			$results['rede max']   = 50;
 
 			$response->writeHead(200, ["Content-Type" => "application/json"]);
 			$response->write(json_encode($results));
