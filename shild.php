@@ -80,7 +80,7 @@ foreach ($result as $row) {
 		$check->setcookie($cookie);
 		$check->setProxy($proxy);
 		$run = $check->run();
-
+		echo "\n\n------> 83 $run ------> \n";
 		if($run === true){
 			// cookie ok, atualiza ciclo e update.
 			echo "\n\n[$cookie] - $proxy\n\n";

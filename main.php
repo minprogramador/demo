@@ -166,25 +166,25 @@ $app->get('/', function (Request $request, Response $response) use($connection, 
 
 	        $results = $command->resultRows;
 
-			$tudook = array_filter($results, function($elem) use($NUM){
+			$tudook = array_filter($results, function($elem) {
 				if(strlen($elem['proxy']) > 5 and strlen($elem['cookie']) > 10 and $elem['status'] == true) {
 					return $elem;
 				}
 			});
 
-			$tudoruim = array_filter($results, function($elem) use($NUM){
+			$tudoruim = array_filter($results, function($elem) {
 				if($elem['status'] == false) {
 					return $elem;
 				}
 			});
 
-			$penden_proxy = array_filter($results, function($elem) use($NUM){
+			$penden_proxy = array_filter($results, function($elem) {
 				if(strlen($elem['proxy']) < 5 and $elem['status'] == true) {
 					return $elem;
 				}
 			});
 
-			$penden_sessao = array_filter($results, function($elem) use($NUM){
+			$penden_sessao = array_filter($results, function($elem) {
 				if(strlen($elem['cookie']) < 10 and $elem['status'] == true) {
 					return $elem;
 				}
