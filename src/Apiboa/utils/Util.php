@@ -64,6 +64,40 @@ class Util
         return ($res);
     }
     
+     public function unique_multidim_array($array, $key) {
+        $temp_array = array();
+        $i = 0;
+        $key_array = array();
+       
+        foreach($array as $val) {
+            if (!in_array($val[$key], $key_array)) {
+                $key_array[$i] = $val[$key];
+                $temp_array[$i] = $val;
+            }
+            $i++;
+        }
+        return $temp_array;
+    }
+
+    public function clean_string($value) {
+        return str_replace(array("\n",'  '), '', $value);
+    }
+
+    public function limpa_strings($str) {
+        if(is_array($str)){
+            return $str;
+        }
+        $str  = strip_tags($str);
+        $check  = substr($str, 0, 1);
+        if($check == ' ') {
+            $str = substr($str, 1);
+        }
+        
+        $str = str_replace(array("\n", "\t", "\r", '&nbsp;'), '', $str);
+        return trim(rtrim($str));
+     }
+    
+
     public function corta($str, $left, $right) 
     {
         $str = substr ( stristr ( $str, $left ), strlen ( $left ) );

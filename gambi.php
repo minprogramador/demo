@@ -11,6 +11,7 @@ use Api\Boa\Logar;
 use Api\Boa\Check;
 use Api\Boa\Consultar;
 use Api\Boa\utils\Util;
+use Api\Boa\Filtro;
 
 require(dirname(__FILE__).'/vendor/autoload.php');
 require(__DIR__. "/config.php");
@@ -26,6 +27,9 @@ if(count($argv) > 1) {
 		if(stristr($arv, 'doc=')){
 			$cpf = str_replace('doc=', '', $arv);
 		}
+		if(stristr($arv, 't=')){
+			$tipo = str_replace('t=', '', $arv);
+		}
 	}
 }else{
 	die('nada a fazer.');	
@@ -34,6 +38,12 @@ if(count($argv) > 1) {
 if(!$cpf) {
 	die('nada a fazer.');
 }
+
+if(!$tipo) {
+	$tipo = 'html';
+}
+
+
 
 $database = new Nette\Database\Connection($dsn, $user, $password);
 
@@ -63,10 +73,26 @@ foreach ($result as $row) {
 	$cons->setProxy($proxy);
 	$cons->setCpf($cpf);
 	$res = $cons->run();
-	if($res !== false) {
-		echo $res;
+
+	if($res === false) {
+		$database->query("update contas set `cookie`='';");
+	}elseif($res === true) {
+		$result = ['msg'=> 'erro ao consultar, cookie ok !', 'status' => true];
+	}elseif(stristr($res, 'ES CONFIDENCIAIS')) {
+		if ($tipo == 'json') {
+			$limpa = new Filtro();
+			$resokk = $limpa->json($res);
+			$resokk = json_encode($resokk);
+		}else{
+			$resokk = $res;
+		}
+		echo $resokk;
 		break;
-	}else{
-		continue;
+	}elseif($res == 'rede'){
+		$database->query("update contas set `proxy`='';");
 	}
+
+	continue;
 }
+
+

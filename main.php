@@ -110,11 +110,20 @@ $loop->addPeriodicTimer(60, function(Timer $timer) {
 });
 
 
-$loop->addPeriodicTimer(0.5, function(Timer $timer) {
+$loop->addPeriodicTimer(1, function(Timer $timer) {
 	echo "\nPassou..";
 });
 
 $app->get('/consulta/{doc}', function (Request $request, Response $response) use($connection, $loop) {
+	$querys = $request->getQuery();
+	if(isset($querys['type'])){
+		$type = $querys['type'];
+		if($type == 'json'){
+			$type = 'json';
+		}
+	}else{
+		$type = 'html';
+	}
 
 	$verurl = $request->getPath();
 	$verurl = explode("consulta/", $verurl);
@@ -138,7 +147,7 @@ $app->get('/consulta/{doc}', function (Request $request, Response $response) use
 
 		if(isset($cpf)){
 
-			$payload = "php gambi.php doc=".$cpf;
+			$payload = "php gambi.php t=$type doc=".$cpf;
 
 			runPayload($payload)
 				->then(function ($value) use($response){

@@ -50,15 +50,20 @@ class Consultar
         $headers[] = "Content-Type: application/x-www-form-urlencoded";
         $headers[] = "Dnt: 1";
         $headers[] = "Connection: keep-alive";
+        $headers[] = "Cookie: ". $cookies;
         $headers[] = "Upgrade-Insecure-Requests: 1";
 
         $post   = "INCLUIR=1&tipoRelatorio=22&method=consultarCpfs&consulta=on&cpf1={$cpf}&score=on&cpf2=&cpf3=&cpf4=&cpf5=&cpf6=&nome=&dtNascimento=&uf=&cidade=";
-        $result = $Util->curl($url, $cookies, $post, true, null, false, $proxy, $headers);
+        $result = $Util->curl($url, null, $post, true, null, false, $proxy, $headers);
 
         if(stristr($result, 'ES FORNECIDAS</strong>')){
             return $result;
-        }else{
+        }elseif(stristr($result, 'Pessoal Gold</h2>')){
+            return true;
+        }elseif(stristr($result, 'cation: https://consumer.bvsnet.com.')){
             return false;
+        }else{
+            return 'rede';
         }
     }
 }
