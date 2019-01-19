@@ -16,6 +16,23 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `historico`
+--
+DROP TABLE IF EXISTS `historico`;
+CREATE TABLE `historico` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `conta` varchar(45) DEFAULT NULL,
+  `proxy` varchar(255) DEFAULT NULL,
+  `token` varchar(255) DEFAULT NULL,
+  `doc` varchar(14) DEFAULT NULL,
+  `retorno` longtext DEFAULT NULL,
+  `timeout` varchar(15) DEFAULT NULL,
+  `data` datetime DEFAULT NULL,
+  `status` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+--
 -- Table structure for table `contas`
 --
 

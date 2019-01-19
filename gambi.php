@@ -30,6 +30,9 @@ if(count($argv) > 1) {
 		if(stristr($arv, 't=')){
 			$tipo = str_replace('t=', '', $arv);
 		}
+		if(stristr($arv, 'a=')){
+			$token = str_replace('a=', '', $arv);
+		}
 	}
 }else{
 	die('nada a fazer.');	
@@ -41,6 +44,10 @@ if(!$cpf) {
 
 if(!$tipo) {
 	$tipo = 'html';
+}
+
+if(!$token) {
+	die;
 }
 
 
@@ -73,16 +80,24 @@ foreach ($result as $row) {
 	$cons->setProxy($proxy);
 	$cons->setCpf($cpf);
 	$res = $cons->run();
-
+	$timeout = '';
 	if($res === false) {
 		$database->query("update contas set `cookie`='';");
 	}elseif($res === true) {
 		$result = ['msg'=> 'erro ao consultar, cookie ok !', 'status' => true];
 	}elseif(stristr($res, 'ES CONFIDENCIAIS')) {
+
+		$limpa = new Filtro();
+
+		$resjson = $limpa->json($res);
+		$resjson = json_encode($resjson);
+		$status = true;
+		$query = "INSERT INTO `historico` (`conta`, `proxy`, `token`, `doc`, `retorno`, `timeout`, `data`, `status`) VALUES ('".$usuario."', '".$proxy."', '".$token."', '".$cpf."', '".$resjson."', '".$timeout."', NOW(), '".$status."');";
+
+		$database->query($query);
+
 		if ($tipo == 'json') {
-			$limpa = new Filtro();
-			$resokk = $limpa->json($res);
-			$resokk = json_encode($resokk);
+			$resokk = $resjson;
 		}else{
 			$resokk = $res;
 		}

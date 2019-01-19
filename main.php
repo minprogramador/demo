@@ -104,7 +104,7 @@ $loop->addPeriodicTimer(1800, function(Timer $timer) {
 });
 
 $app->get('/consulta/{doc}', function (Request $request, Response $response) use($connection, $loop) {
-
+	$token = 'demo';
 	$querys = $request->getQuery();
 	if(isset($querys['type'])) {
 		$type = $querys['type'];
@@ -137,7 +137,7 @@ $app->get('/consulta/{doc}', function (Request $request, Response $response) use
 
 		if(isset($cpf)){
 
-			$payload = "php gambi.php t=$type doc=".$cpf;
+			$payload = "php gambi.php a=$token t=$type doc=".$cpf;
 
 			runPayload($payload)
 				->then(function ($value) use($response){
@@ -219,7 +219,6 @@ $app->get('/', function (Request $request, Response $response) use($connection, 
 			'start'  => $startrun
 		];
 
-		
 		$conn->query('select * from redes', function ($command1, $conn1) use ($request, $loop, $response, &$startrun, $results) {
 
 			if ($command1->hasError()) {
@@ -244,9 +243,21 @@ $app->get('/', function (Request $request, Response $response) use($connection, 
 			$results['rede off']   = count($tudoruim_rede);
 			$results['rede max']   = 50;
 
-			$response->writeHead(200, ["Content-Type" => "application/json"]);
-			$response->write(json_encode($results));
-			$response->end();
+            $payload = "php shild_info.php";
+            runPayload($payload)
+				->then(function ($value) use ($request, $loop, $response, &$startrun, $results) {
+					$value = json_decode($value, true);
+                    $results['serverinfo'] = $value;
+                    $response->writeHead(200, ["Content-Type" => "application/json"]);
+                    $response->write(json_encode($results));
+					$response->end();
+                },
+                function ($reason) use($response) use ($results) {
+                	$response->writeHead(200, ["Content-Type" => "application/json"]);
+                    $response->write(json_encode($results));
+                    $response->end();
+                }
+            );
 
 		});
 	});
