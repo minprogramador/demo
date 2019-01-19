@@ -58,12 +58,6 @@ function runPayload($payload) {
 
 	$process->on('exit', function ($code, $term) use(&$result, $deferred) {
 
-	    if ($term === null) {
-	       // print_r($result);
-	       // echo 'exit with code ' . $code . PHP_EOL;
-	    } else {
-	      // echo 'terminated with signal ' . $term . PHP_EOL;
-	    }
 		$deferred->resolve($result);
 
 	});
@@ -91,7 +85,7 @@ $loop->addPeriodicTimer(45, function(Timer $timer) {
 
 //1800
 
-$loop->addPeriodicTimer(60, function(Timer $timer) {
+$loop->addPeriodicTimer(1800, function(Timer $timer) {
 
 	echo date("Y-m-d H:i:s")." ~ ..::verifica cache de proxys::..\n";
 
@@ -109,16 +103,12 @@ $loop->addPeriodicTimer(60, function(Timer $timer) {
 		
 });
 
-
-$loop->addPeriodicTimer(1, function(Timer $timer) {
-	echo "\nPassou..";
-});
-
 $app->get('/consulta/{doc}', function (Request $request, Response $response) use($connection, $loop) {
+
 	$querys = $request->getQuery();
-	if(isset($querys['type'])){
+	if(isset($querys['type'])) {
 		$type = $querys['type'];
-		if($type == 'json'){
+		if($type == 'json') {
 			$type = 'json';
 		}
 	}else{
@@ -165,7 +155,6 @@ $app->get('/consulta/{doc}', function (Request $request, Response $response) use
 					$response->end();
 			    }
 			);
-
 
 		}elseif(isset($cnpj)) {
 			$results = ['msg' => 'consulta cnpj'];
