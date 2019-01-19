@@ -252,7 +252,7 @@ $app->get('/', function (Request $request, Response $response) use($connection, 
                     $response->write(json_encode($results));
 					$response->end();
                 },
-                function ($reason) use($response) use ($results) {
+                function ($reason) use($response, $results) {
                 	$response->writeHead(200, ["Content-Type" => "application/json"]);
                     $response->write(json_encode($results));
                     $response->end();
