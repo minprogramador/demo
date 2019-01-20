@@ -67,7 +67,7 @@ function runPayload($payload) {
 
 $loop->addPeriodicTimer(45, function(Timer $timer) {
 
-	echo date("Y-m-d H:i:s")." - verifica cookie e proxys..\n";
+	echo date("Y-m-d H:i:s")." - verifica cookie e proxys ~ roda a cada 45s ..\n";
 
 	$payload = "php shild.php";
 	runPayload($payload)
@@ -83,11 +83,9 @@ $loop->addPeriodicTimer(45, function(Timer $timer) {
 
 });
 
-//1800
+$loop->addPeriodicTimer(300, function(Timer $timer) {
 
-$loop->addPeriodicTimer(1800, function(Timer $timer) {
-
-	echo date("Y-m-d H:i:s")." ~ ..::verifica cache de proxys::..\n";
+	echo date("Y-m-d H:i:s")." ~ ..::verifica cache de proxys ~ roda a cada 5m ::..\n";
 
 	$payload = "php shild_rede.php";
 	runPayload($payload)
