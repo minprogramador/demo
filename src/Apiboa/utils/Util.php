@@ -93,8 +93,9 @@ class Util
             $str = substr($str, 1);
         }
         
-        $str = str_replace(array("\n", "\t", "\r", '&nbsp;'), '', $str);
-        return trim(rtrim($str));
+        //$str = str_replace(array("\n", "\t", "\r", '&nbsp;'), '', $str);
+        $str = trim(rtrim($str));
+        return $str;        
      }
     
 

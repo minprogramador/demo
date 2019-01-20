@@ -162,14 +162,14 @@ $app->get('/consulta/{doc}', function (Request $request, Response $response) use
 					if(strlen($value) < 40) {
 						$value = 'Opss, deu erro ao consultar...';						
 					}
-					$response->writeHead(200, ["Content-Type" => "text/html"]);
+					$response->writeHead(200, ["Content-Type" => "application/json"]);
 					$response->write($value);
 					$response->end();
 			    },
 			    function ($reason) use($response) {
 
 					$response->writeHead(200, ["Content-Type" => "text/html"]);
-					$response->write('Opss, deu erro ao consultar....');
+					$response->write('Opss, deu erro ao consultar....' . $reason);
 					$response->end();
 			    }
 			);

@@ -51,7 +51,6 @@ if(!$token) {
 }
 
 
-
 $database = new Nette\Database\Connection($dsn, $user, $password);
 
 $result = $database->query('select * from contas where LENGTH(`proxy`) > 6 and LENGTH(`cookie`) > 10 and `status`=true');
@@ -80,19 +79,17 @@ foreach ($result as $row) {
 	$cons->setProxy($proxy);
 	$cons->setCpf($cpf);
 	$res = $cons->run();
+	$resdebug = base64_encode($res);
 	$timeout = '';
-	if($res === false) {
-		$database->query("update contas set `cookie`='';");
-	}elseif($res === true) {
-		$result = ['msg'=> 'erro ao consultar, cookie ok !', 'status' => true];
-	}elseif(stristr($res, 'ES CONFIDENCIAIS')) {
 
-		$limpa = new Filtro();
+	if(stristr($res, 'ES CONFIDENCIAIS')) {
 
+		$limpa   = new Filtro();
 		$resjson = $limpa->json($res);
 		$resjson = json_encode($resjson);
-		$status = true;
-		$query = "INSERT INTO `historico` (`conta`, `proxy`, `token`, `doc`, `retorno`, `timeout`, `data`, `status`) VALUES ('".$usuario."', '".$proxy."', '".$token."', '".$cpf."', '".$resjson."', '".$timeout."', NOW(), '".$status."');";
+
+		$status  = true;
+		$query   = "INSERT INTO `historico` (`conta`, `proxy`, `token`, `doc`, `retorno`, `timeout`, `data`, `status`) VALUES ('".$usuario."', '".$proxy."', '".$token."', '".$cpf."', '".$resjson."', '".$timeout."', NOW(), '".$status."');";
 
 		$database->query($query);
 
@@ -103,11 +100,42 @@ foreach ($result as $row) {
 		}
 		echo $resokk;
 		break;
-	}elseif($res == 'rede'){
+		
+	}
+	elseif($res === false) {
+
+		$query   = "INSERT INTO `historico` (`conta`, `proxy`, `token`, `doc`, `retorno`, `timeout`, `data`, `status`) VALUES ('".$usuario."', '".$proxy."', '".$token."', '".$cpf."', 'cookie invalido. retorno debug > ".$resdebug."', '".$timeout."', NOW(), false);";
+		$database->query($query);
+		$database->query("update contas set `cookie`='';");
+
+	}elseif($res === true) {
+
+		$query   = "INSERT INTO `historico` (`conta`, `proxy`, `token`, `doc`, `retorno`, `timeout`, `data`, `status`) VALUES ('".$usuario."', '".$proxy."', '".$token."', '".$cpf."', 'erro ao consultar, cookie ok! retorno debug > ".$resdebug."', '".$timeout."', NOW(), false);";
+		$database->query($query);
+		$result = ['msg'=> 'erro ao consultar, cookie ok !', 'status' => true];
+
+	}
+	elseif($res == 'rede'){
+
+		$query   = "INSERT INTO `historico` (`conta`, `proxy`, `token`, `doc`, `retorno`, `timeout`, `data`, `status`) VALUES ('".$usuario."', '".$proxy."', '".$token."', '".$cpf."', 'erro ao consultar, proxy invalido! retorno debug > ".$resdebug."', '".$timeout."', NOW(), false);";
+		$database->query($query);		
 		$database->query("update contas set `proxy`='';");
+
+	}else{
+
+		$query   = "INSERT INTO `historico` (`conta`, `proxy`, `token`, `doc`, `retorno`, `timeout`, `data`, `status`) VALUES ('".$usuario."', '".$proxy."', '".$token."', '".$cpf."', 'erro indefinido.... retorno debug > ".$resdebug."', '".$timeout."', NOW(), false);";
+		$database->query($query);		
+//		die("\n#Error linha 110--->\n");
+
 	}
 
 	continue;
 }
+
+
+
+
+
+
 
 
