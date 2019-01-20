@@ -103,6 +103,26 @@ $loop->addPeriodicTimer(1800, function(Timer $timer) {
 		
 });
 
+$app->get('/logs', function (Request $request, Response $response) use($connection, $loop) {
+
+	$payload = "cat logs.txt";
+
+	runPayload($payload)
+		->then(function ($value) use($response){
+
+			$response->writeHead(200, ["Content-Type" => "text/html"]);
+			$response->write($value);
+			$response->end();
+		},
+		function ($reason) use($response) {
+
+			$response->writeHead(200, ["Content-Type" => "text/html"]);
+			$response->write('log nao existe');
+			$response->end();
+		}
+	);
+});
+
 $app->get('/consulta/{doc}', function (Request $request, Response $response) use($connection, $loop) {
 	$token = 'demo';
 	$querys = $request->getQuery();
@@ -169,6 +189,43 @@ $app->get('/consulta/{doc}', function (Request $request, Response $response) use
 			$response->end();
 		}
 	}
+
+});
+
+$app->get('/historico', function (Request $request, Response $response) use($connection, $loop, &$startrun) {
+
+	$connection->query('select * from historico', function ($command, $conn) use ($request, $loop, $response, &$startrun) {
+	    if ($command->hasError()) {
+
+	        $error = $command->getError();
+	    
+	    } else {
+
+	        $results = $command->resultRows;
+
+			$tudook = array_filter($results, function($elem) {
+				if(strlen($elem['retorno']) > 100) {
+					return $elem;
+				}
+			});
+
+			$tudoruim = array_filter($results, function($elem) {
+				if(strlen($elem['retorno']) < 100) {
+					return $elem;
+				}
+			});
+	    }
+
+		$results = [
+			'total'    => count($results),
+			'ativos'   => count($tudook),
+			'inativos' => count($tudoruim)
+		];
+
+		$response->writeHead(200, ["Content-Type" => "application/json"]);
+		$response->write(json_encode($results));
+		$response->end();
+	});
 
 });
 
