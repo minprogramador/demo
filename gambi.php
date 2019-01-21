@@ -1,7 +1,7 @@
 <?php
 
-error_reporting(E_ALL);
-ini_set('error_reporting', E_ALL);
+error_reporting(0);
+ini_set('error_reporting', 0);
 
 setlocale(LC_ALL, 'pt_BR', 'pt_BR.utf-8', 'pt_BR.utf-8', 'portuguese');
 date_default_timezone_set('America/Sao_Paulo');
@@ -28,6 +28,9 @@ if(count($argv) > 1) {
 		if(stristr($arv, '-d=')){
 			$doc = str_replace('-d=', '', $arv);
 		}
+		if(stristr($arv, '-r=')){
+			$tipores = str_replace('-r=', '', $arv);
+		}
 		if(stristr($arv, '-t=')){
 			$tipo = str_replace('-t=', '', $arv);
 		}
@@ -43,7 +46,7 @@ if(!$doc) {
 	die('nada a fazer.');
 }
 
-if(!$tipo) {
+if(!$tipores) {
 	$tipo = 'html';
 }
 

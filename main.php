@@ -1,7 +1,7 @@
 <?php
 
-error_reporting(E_ALL);
-ini_set('error_reporting', E_ALL);
+error_reporting(0);
+ini_set('error_reporting', 0);
 
 use React\EventLoop\Timer\Timer;
 use \React\Http\Request;
@@ -27,7 +27,7 @@ $server = new ReactHttpServer($loop);
 $curl->client->enableHeaders();
 
 $app = new App($server, [
-    'port' => 5555
+    'port' => 7544
     ,
 ]);
 
@@ -155,7 +155,7 @@ $app->get('/consulta/{doc}', function (Request $request, Response $response) use
 
 		if(isset($cpf)){
 
-			$payload = "php gambi.php a=$token t=$type doc=".$cpf;
+			$payload = "php gambi.php -a={$token} -r={$type} -d={$cpf} -t=cpf";
 
 			runPayload($payload)
 				->then(function ($value) use($response){
@@ -175,10 +175,26 @@ $app->get('/consulta/{doc}', function (Request $request, Response $response) use
 			);
 
 		}elseif(isset($cnpj)) {
-			$results = ['msg' => 'consulta cnpj'];
-			$response->writeHead(200, ["Content-Type" => "application/json"]);
-			$response->write(json_encode($results));
-			$response->end();
+
+			$payload = "php gambi.php -a={$token} -r={$type} -d={$cnpj} -t=cnpj";
+
+			runPayload($payload)
+				->then(function ($value) use($response){
+					if(strlen($value) < 40) {
+						$value = 'Opss, deu erro ao consultar...';						
+					}
+					$response->writeHead(200, ["Content-Type" => "application/json"]);
+					$response->write($value);
+					$response->end();
+			    },
+			    function ($reason) use($response) {
+
+					$response->writeHead(200, ["Content-Type" => "text/html"]);
+					$response->write('Opss, deu erro ao consultar....' . $reason);
+					$response->end();
+			    }
+			);
+
 		}else{
 			$results = ['msg' => 'vc fez alguma merda.'];
 			$results = ['msg' => 'consulta cnpj'];
@@ -239,37 +255,85 @@ $app->get('/', function (Request $request, Response $response) use($connection, 
 
 	        $results = $command->resultRows;
 
-			$tudook = array_filter($results, function($elem) {
-				if(strlen($elem['proxy']) > 5 and strlen($elem['cookie']) > 10 and $elem['status'] == true) {
+			$totalcpf = array_filter($results, function($elem) {
+				if($elem['tipo'] == 1) {
 					return $elem;
 				}
 			});
 
-			$tudoruim = array_filter($results, function($elem) {
-				if($elem['status'] == false) {
+			$totalcnpj = array_filter($results, function($elem) {
+				if($elem['tipo'] == 2) {
 					return $elem;
 				}
 			});
 
-			$penden_proxy = array_filter($results, function($elem) {
-				if(strlen($elem['proxy']) < 5 and $elem['status'] == true) {
+			$tudookcpf = array_filter($results, function($elem) {
+				if(strlen($elem['proxy']) > 5 and strlen($elem['cookie']) > 10 and $elem['status'] == true and $elem['tipo'] == 1) {
 					return $elem;
 				}
 			});
 
-			$penden_sessao = array_filter($results, function($elem) {
-				if(strlen($elem['cookie']) < 10 and $elem['status'] == true) {
+			$tudoruimcpf = array_filter($results, function($elem) {
+				if($elem['status'] == false and $elem['tipo'] == 1) {
 					return $elem;
 				}
 			});
+
+			$penden_proxycpf = array_filter($results, function($elem) {
+				if(strlen($elem['proxy']) < 5 and $elem['status'] == true and $elem['tipo'] == 1) {
+					return $elem;
+				}
+			});
+
+			$penden_sessaocpf = array_filter($results, function($elem) {
+				if(strlen($elem['cookie']) < 10 and $elem['status'] == true and $elem['tipo'] == 1) {
+					return $elem;
+				}
+			});
+			
+			//========================
+
+			$tudookcnpj = array_filter($results, function($elem) {
+				if(strlen($elem['proxy']) > 5 and strlen($elem['cookie']) > 10 and $elem['status'] == true and $elem['tipo'] == 2) {
+					return $elem;
+				}
+			});
+
+			$tudoruimcnpj = array_filter($results, function($elem) {
+				if($elem['status'] == false and $elem['tipo'] == 2) {
+					return $elem;
+				}
+			});
+
+			$penden_proxycnpj = array_filter($results, function($elem) {
+				if(strlen($elem['proxy']) < 5 and $elem['status'] == true and $elem['tipo'] == 2) {
+					return $elem;
+				}
+			});
+
+			$penden_sessaocnpj = array_filter($results, function($elem) {
+				if(strlen($elem['cookie']) < 10 and $elem['status'] == true and $elem['tipo'] == 2) {
+					return $elem;
+				}
+			});
+
 	    }
 
 		$results = [
-			'total'    => count($results),
-			'ativos'   => count($tudook),
-			'inativos' => count($tudoruim),
-			'pendente rede'   => count($penden_proxy),
-			'pendente sessao' => count($penden_sessao),
+			'cpf' => [
+				'total'    => count($totalcpf),
+				'ativos'   => count($tudookcpf),
+				'inativos' => count($tudoruimcpf),
+				'pendente rede'   => count($penden_proxycpf),
+				'pendente sessao' => count($penden_sessaocpf)
+			],
+			'cnpj' => [
+				'total'    => count($totalcnpj),
+				'ativos'   => count($tudookcnpj),
+				'inativos' => count($tudoruimcnpj),
+				'pendente rede'   => count($penden_proxycnpj),
+				'pendente sessao' => count($penden_sessaocnpj)
+			],
 			'status' => true,
 			'start'  => $startrun
 		];
