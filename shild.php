@@ -12,12 +12,7 @@ use Api\Boa\Cpf\Check as cpfCheck;
 use Api\Boa\Cnpj\Logar as cnpjLogar;
 use Api\Boa\Cpf\Logar as cpfLogar;
 
-
 use Nette\Database\Context;
-//use Api\Boa\Logar;
-//use Api\Boa\Check;
-//use Api\Boa\Consultar;
-//use Api\Boa\utils\Util;
 
 require(dirname(__FILE__).'/vendor/autoload.php');
 require(__DIR__. "/config.php");
@@ -33,11 +28,33 @@ function getProxy() {
 
 	global $database;
 
-	$query   = 'select * from redes where `update` < NOW() and `ativo`=true  ORDER BY `update` desc limit 10;';
+
+	$query1 = 'select * from contas where LENGTH(`proxy`) > 6 and `status`=true';
+
+	$result1 = $database->fetchAll($query1);
+	$result1 = json_encode($result1);
+	$result1 = json_decode($result1, true);
+
+	$query   = 'select * from redes where `update` < NOW() and `ativo`=true  ORDER BY `update` desc limit 40;';
 
 	$result = $database->fetchAll($query);
 	$result = json_encode($result);
 	$result = json_decode($result, true);
+	$resok  = [];
+
+	foreach($result1 as $rr1) {
+		$prrr1 = $rr1['proxy'];
+
+		foreach($result as $rr) {
+			$prrr = $rr['proxy'];
+			if($prrr1 != $prrr) {
+				$resok[] = $prrr;
+			}
+		}
+
+	}
+
+	$resok = array_unique($resok);
 	$rand_keys = array_rand($result, 1);
 	$vaipr = $result[$rand_keys];
 	$vaipr = $vaipr['proxy'];

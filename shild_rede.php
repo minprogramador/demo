@@ -99,7 +99,6 @@ foreach ($result as $row) {
 	$start  = $row->start;
 	$ativo  = $row->ativo;
 	$status = $row->status;
-
 	$check = checkProxy($proxy);
 
 	if($check === true){
