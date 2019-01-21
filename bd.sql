@@ -29,6 +29,7 @@ CREATE TABLE `historico` (
   `timeout` varchar(15) DEFAULT NULL,
   `data` datetime DEFAULT NULL,
   `status` int(11) DEFAULT NULL,
+  `tipo` int(1),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
