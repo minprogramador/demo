@@ -52,6 +52,7 @@ CREATE TABLE `contas` (
   `start` datetime DEFAULT NULL,
   `update` datetime DEFAULT NULL,
   `status` int(11) DEFAULT NULL,
+  `tipo` int(1),
   PRIMARY KEY (`id`),
   UNIQUE KEY `usuario_UNIQUE` (`usuario`)
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;

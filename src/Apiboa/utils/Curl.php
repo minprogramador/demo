@@ -30,14 +30,19 @@ class Curl {
         $this->referer = $ref;
     }
 
-    public function add($url, $cookie=null, $post=null, $proxy=null) {
+    public function add($url, $cookie=null, $post=null, $proxy=null, $useragent=true) {
         if($this->timeout == null){
             die('seta o timeout fdp');
         }
+
+        if($useragent === true){
+        	$useragent = 'Mozilla/5.0 (Windows NT 6.1; rv:12.0) Gecko/20100101 Firefox/12.0';
+        }
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, true);
-        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 6.1; rv:12.0) Gecko/20100101 Firefox/12.0');
+        curl_setopt($ch, CURLOPT_USERAGENT, $useragent);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
 
@@ -95,21 +100,3 @@ class Curl {
         return is_string($string) && is_array(json_decode($string, true)) && (json_last_error() == JSON_ERROR_NONE) ? true : false;
     }
 }
-
-/*
-
-#example
-$keyapi = 'VYZK892qeodPDML7fU6BFAjGtQuh4HWc';
-$url_api = "http://falcon.proxyrotator.com:51337/?apiKey={$keyapi}&country=br&port=3128";
-
-$Curl = new Curl();
-$Curl->setTimeout(10);
-$Curl->add($url_api);
-$Curl->add($url_api);
-$Curl->add($url_api);
-$Curl->add($url_api);
-$docsok = $Curl->run();
-$docsok = $docsok['body'];
-
-
-*/

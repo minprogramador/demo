@@ -1,7 +1,6 @@
 <?php
 
 namespace Api\Boa;
-
 use Api\Boa\utils\Util;
 
 class Filtro {
@@ -410,24 +409,24 @@ class Filtro {
             $resultado['telefones'] = $tel;
         }
 
-        // foreach($resultado['telefones'] as $tels)
-        // {
-        //     $ddd = substr($tels, 0, 2);
-        //     $numero = substr($tels, 2);
-        //     if(strlen($ddd) > 1){
-        //         $dados_tels = array(
-        //             'doc'           => $doc,
-        //             'ddd'           => $ddd,
-        //             'numero'        => $numero,
-        //             'portabilidade' => '',
-        //             'obs'           => '',
-        //             'data_cadastro' => date("Y-m-d H:i:s"),
-        //             'status'        => 1
-        //         );
+        foreach($resultado['telefones'] as $tels)
+        {
+            $ddd = substr($tels, 0, 2);
+            $numero = substr($tels, 2);
+            if(strlen($ddd) > 1){
+                $dados_tels = array(
+                    'doc'           => $doc,
+                    'ddd'           => $ddd,
+                    'numero'        => $numero,
+                    'portabilidade' => '',
+                    'obs'           => '',
+                    'data_cadastro' => date("Y-m-d H:i:s"),
+                    'status'        => 1
+                );
 
-        //         //salvar telefones?
-        //     }
-        // }
+                //salvar telefones?
+            }
+        }
 
         $resultado['score'] = array(
             'pontuacao'     => $score_credito,
@@ -436,102 +435,106 @@ class Filtro {
             'legenda'       => $score_legenda
         );
 
-        // if(strlen($score_credito) > 0){
-        //     $dados_score = array(
-        //         'doc'           => $doc,
-        //         'score'         => $score_credito,
-        //         'classe'        => $classe_score,
-        //         'probabilidade' => $score_porcentagem,
-        //         'legenda'       => $score_legenda,
-        //         'data_coleta'   => date("Y-m-d H:i:s"),
-        //         'status'        => 1
-        //     );
+        if(strlen($score_credito) > 0){
+            $dados_score = array(
+                'doc'           => $doc,
+                'score'         => $score_credito,
+                'classe'        => $classe_score,
+                'probabilidade' => $score_porcentagem,
+                'legenda'       => $score_legenda,
+                'data_coleta'   => date("Y-m-d H:i:s"),
+                'status'        => 1
+            );
 
-        //     //salvar score??
-        // }
+            //salvar score??
+        }
 
-       $resultado['protestos'] = urlencode($blocoProtestos);
-        // $dados_protestos = array(
-        //     'doc'           => $doc,
-        //     'data'          => $blocoProtestos,
-        //     'data_coleta'   => date("Y-m-d H:i:s"),
-        //     'status'        => 1
-        // );
+        $resultado['protestos'] = urlencode($blocoProtestos);
+        $dados_protestos = array(
+            'doc'           => $doc,
+            'data'          => $blocoProtestos,
+            'data_coleta'   => date("Y-m-d H:i:s"),
+            'status'        => 1
+        );
         //salvar protestos?
         
-       $resultado['cheque_sem_fundo'] = urlencode($semFundo);
-        // $dados_semFundo = array(
-        //     'doc'           => $doc,
-        //     'data'          => $semFundo,
-        //     'data_coleta'   => date("Y-m-d H:i:s"),
-        //     'status'        => 1
-        // );
+        $resultado['cheque_sem_fundo'] = urlencode($semFundo);
+        $dados_semFundo = array(
+            'doc'           => $doc,
+            'data'          => $semFundo,
+            'data_coleta'   => date("Y-m-d H:i:s"),
+            'status'        => 1
+        );
         //salvar cheques?
 
-       $resultado['recuperacao_falencia'] = urlencode($blocoRFAJ);
-        // $dados_rec_falen = array(
-        //     'doc'           => $doc,
-        //     'data'          => $blocoRFAJ,
-        //     'data_coleta'   => date("Y-m-d H:i:s"),
-        //     'status'        => 1
-        // );
+        $resultado['recuperacao_falencia'] = urlencode($blocoRFAJ);
+        $dados_rec_falen = array(
+            'doc'           => $doc,
+            'data'          => $blocoRFAJ,
+            'data_coleta'   => date("Y-m-d H:i:s"),
+            'status'        => 1
+        );
         //salvar recuperacao e falencia?
 
-       $resultado['acoes_civeis']         = urlencode($blocoAC);
-        // $dados_acoes_civeis = array(
-        //     'doc'           => $doc,
-        //     'data'          => $blocoAC,
-        //     'data_coleta'   => date("Y-m-d H:i:s"),
-        //     'status'        => 1
-        // );
+        $resultado['acoes_civeis']         = urlencode($blocoAC);
+        $dados_acoes_civeis = array(
+            'doc'           => $doc,
+            'data'          => $blocoAC,
+            'data_coleta'   => date("Y-m-d H:i:s"),
+            'status'        => 1
+        );
         //salvar acoes civies..?
 
-       $resultado['participacao_empresas'] = urlencode($blocoParticipacao_novo);
-        // $dados_part_empres = array(
-        //     'doc'           => $doc,
-        //     'data'          => $blocoParticipacao_novo,
-        //     'data_coleta'   => date("Y-m-d H:i:s"),
-        //     'status'        => 1
-        // );
+        $resultado['participacao_empresas'] = urlencode($blocoParticipacao_novo);
+        $dados_part_empres = array(
+            'doc'           => $doc,
+            'data'          => $blocoParticipacao_novo,
+            'data_coleta'   => date("Y-m-d H:i:s"),
+            'status'        => 1
+        );
         //salvar participacao em empresas...?
 
-       $resultado['debitos'] = urlencode($debitos);
-        // $dados_debitos = array(
-        //     'doc'           => $doc,
-        //     'data'          => $debitos,
-        //     'data_coleta'   => date("Y-m-d H:i:s"),
-        //     'status'        => 1
-        // );
+        $resultado['debitos'] = urlencode($debitos);
+        $dados_debitos = array(
+            'doc'           => $doc,
+            'data'          => $debitos,
+            'data_coleta'   => date("Y-m-d H:i:s"),
+            'status'        => 1
+        );
         //salvar debitos??
 
-       $resultado['outras_infos'] = urlencode($blocoOI);
-        // $dados_outras_infos = array(
-        //     'doc'           => $doc,
-        //     'data'          => $blocoOI,
-        //     'data_coleta'   => date("Y-m-d H:i:s"),
-        //     'status'        => 1
-        // );
+        $resultado['outras_infos'] = urlencode($blocoOI);
+        $dados_outras_infos = array(
+            'doc'           => $doc,
+            'data'          => $blocoOI,
+            'data_coleta'   => date("Y-m-d H:i:s"),
+            'status'        => 1
+        );
         //salvar outras infos?
 
-//        if (array_key_exists("score", $resultado))
-  //      {
-            return $this->utf8ize($resultado);
-    //    }
-      //  else
-        //{
-          //  return false;
-        //}
-    }
+        if (array_key_exists("score", $resultado))
+        {
+            $score            = $resultado['score'];
+            $score            = urlencode("<br/><table class='table table-bordred table-striped'><tbody><tr class='blue'><td colspan='5' align='left'>Pontuaçao: <strong>{$score['pontuacao']}</strong><br/>Probabilidade de inadimplencia: <strong>{$score['probabilidade']}</strong><br/>Obs: <span>{$score['legenda']}</span></span></td></tr></tbody></table>");
+            $protestos        = urlencode("<table class='table table-bordred table-striped'>{$resultado['protestos']}</table>");
+            $cheque_sem_fundo = urlencode("<table class='table table-bordred table-striped'>{$resultado['cheque_sem_fundo']}</table>");
+            $acoes_civeis     = urlencode("<table class='table table-bordred table-striped'>{$resultado['acoes_civeis']}</table>");
+            $debitos          = urlencode("<table class='table table-bordred table-striped'>{$resultado['debitos']}</table>");
+            $outras_infos     = urlencode("<table class='table table-bordred table-striped'>{$resultado['outras_infos']}</table>"); 
+            $participacao_empresas = urlencode("<table class='table table-bordred table-striped'>{$resultado['participacao_empresas']}</table>"); 
+            $recuperacao_falencia  = urlencode("<table class='table table-bordred table-striped'>{$resultado['recuperacao_falencia']}</table>");
 
-    public function utf8ize($d) {
-        if (is_array($d) || is_object($d)) {
-            foreach ($d as &$v) $v = $this->utf8ize($v);
-        } else {
-            $enc   = mb_detect_encoding($d);
-            $value = iconv($enc, 'UTF-8//IGNORE', utf8_encode($d));
-            return $value;
+            if(strlen($score) > 0)
+            {
+
+
+            }
+            
+            return $resultado;
         }
-        return $d;
+        else
+        {
+            return false;
+        }
     }
-
 }

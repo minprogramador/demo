@@ -6,11 +6,18 @@ ini_set('error_reporting', E_ALL);
 setlocale(LC_ALL, 'pt_BR', 'pt_BR.utf-8', 'pt_BR.utf-8', 'portuguese');
 date_default_timezone_set('America/Sao_Paulo');
 
+use Api\Boa\Cnpj\Check as cnpjCheck;
+use Api\Boa\Cpf\Check as cpfCheck;
+
+use Api\Boa\Cnpj\Logar as cnpjLogar;
+use Api\Boa\Cpf\Logar as cpfLogar;
+
+
 use Nette\Database\Context;
-use Api\Boa\Logar;
-use Api\Boa\Check;
-use Api\Boa\Consultar;
-use Api\Boa\utils\Util;
+//use Api\Boa\Logar;
+//use Api\Boa\Check;
+//use Api\Boa\Consultar;
+//use Api\Boa\utils\Util;
 
 require(dirname(__FILE__).'/vendor/autoload.php');
 require(__DIR__. "/config.php");
@@ -45,6 +52,7 @@ function getProxy() {
 $result = $database->query('SELECT * FROM contas where status = ?', true);
 
 foreach ($result as $row) {
+	$tipo    = $row->tipo;
     $usuario = $row->usuario;
     $senha   = $row->senha;
     $proxy   = $row->proxy;
@@ -66,15 +74,27 @@ foreach ($result as $row) {
 
 		echo "::START CHECK COOKIE::\n";
 
-		$check = new Check();
-		$check->setcookie($cookie);
-		$check->setProxy($proxy);
-		$run = $check->run();
+		if($tipo == 1) {
+			$cpfcon = new cpfCheck();
+			$cpfcon->setCookie($cookie);
+			$cpfcon->setProxy($proxy);
+			$run = $cpfcon->check();
+		}elseif($tipo == 2) {
+			$cnpjcon = new cnpjCheck();
+			$cnpjcon->setCookie($cookie);
+			$cnpjcon->setProxy($proxy);
+			$run = $cnpjcon->check();
+		}else {
+			die('tipo invalido');
+		}
+
 		echo "\n\n------> 83 $run ------> \n";
+
+
 		if($run === true){
 			// cookie ok, atualiza ciclo e update.
 			echo "\n\n[$cookie] - $proxy\n\n";
-			echo "\n##### Cookie online, ciclo ok ($cicles) >>>> ", $usuario, PHP_EOL;
+			echo "\n##### Cookie online, ciclo ok ($cicles) >>>> $tipo ~ ", $usuario, PHP_EOL;
 			
 			$payload = [];
 			if($nnproxy === true) {
@@ -98,7 +118,7 @@ foreach ($result as $row) {
 
 			$result = $database->query('UPDATE contas SET', $payload , 'WHERE usuario = ?', $usuario);
 
-			echo "\n############Rede off >>>", $usuario, PHP_EOL;
+			echo "\n############Rede off >>> $tipo ~ ", $usuario, PHP_EOL;
 
 		}else{
 			//cookie ruim, atualiza cookie, update, status.
@@ -122,12 +142,46 @@ foreach ($result as $row) {
 			echo "::SEM PROXY, CONTINUA FILA...::\n";
 			continue;
 		}
-		echo ":: entrou na linha 129, logando: $usuario ---- $proxy::\n";
-		$logar = new Logar();
-		$logar->setProxy($proxy);
-		$logar->setUsuario($usuario);
-		$logar->setSenha($senha);
-		$cookie = $logar->run();
+		echo ":: entrou na linha 129, logando: $tipo ~ $usuario ---- $proxy::\n";
+		if($tipo == 1) {
+			$Logar = new cpfLogar();
+			$Logar->setProxy($proxy);
+			$Logar->setUsuario($usuario);
+			$Logar->setSenha($senha);
+			$prlogin = $Logar->preLogin();
+
+			if(is_array($prlogin)) {
+				
+				$Logar->setCookie($prlogin['cookie']);
+				$Logar->setEcs($prlogin['ecs']);
+				$Logar->setEncript($prlogin['encript']);
+
+				$cookie = $Logar->logar();
+			}else{
+				$cookie = false;
+			}
+
+		}
+		elseif($tipo == 2) {
+
+			$Logarcnpj = new cnpjLogar();
+			$Logarcnpj->setProxy($proxy);
+			$Logarcnpj->setUsuario($usuario);
+			$Logarcnpj->setSenha($senha);
+			$prlogincnpj = $Logarcnpj->preLogin();
+
+			if(is_array($prlogincnpj)) {
+				
+				$Logarcnpj->setCookie($prlogincnpj['cookie']);
+				$Logarcnpj->setEcs($prlogincnpj['ecs']);
+				$Logarcnpj->setEncript($prlogincnpj['encript']);
+
+				$cookie = $Logarcnpj->logar();
+			}else{
+				$cookie = false;
+			}
+
+		}
 
 		if($cookie == 'rede') {
 			//rede ruim..., tenta relogar com novo proxy.
@@ -140,7 +194,7 @@ foreach ($result as $row) {
 			    'status' => true
 			], 'WHERE usuario = ?', $usuario);
 
-			echo "start=proxyoff::{$usuario}::{$proxy}=end";
+			echo "start=proxyoff::{$usuario}::{$proxy}::{$tipo}=end";
 			continue;
 		}elseif($cookie == 'invalida'){
 
@@ -150,7 +204,7 @@ foreach ($result as $row) {
 			    'status' => false
 			], 'WHERE usuario = ?', $usuario);
 
-			echo "start=contaoff::{$usuario}::{$proxy}=end";
+			echo "start=contaoff::{$usuario}::{$proxy}::{$tipo}=end";
 			continue;
 		}elseif($cookie === false){
 
@@ -186,7 +240,7 @@ foreach ($result as $row) {
 
 		}else{
 			echo "\n############# debug linha 107\n";
-			echo "start=false::{$usuario}::{$proxy}=end";	
+			echo "start=false::{$usuario}::{$proxy}::{$tipo}=end";	
 			die;
 
 		}
@@ -194,7 +248,7 @@ foreach ($result as $row) {
 	}
 
 	if(isset($result)) {
-		echo "\n\n### final linha 199....##\n\n";
+		echo "### final linha 199....##\n\n";
 		//print_r($result);
 	}
 

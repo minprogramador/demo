@@ -1,39 +1,19 @@
 <?php
 
-namespace Api\Boa;
-use Api\Boa\utils\Util;
+namespace Api\Boa\Cpf;
 
-class Check
-{
-	public $cookie;
-	public $proxy;
-    public $userAgent = 'Mozilla/5.0 (Windows NT 6.1; rv:12.0) Gecko/20100101 Firefox/12.0';
+use Api\Boa\ApiBoa;
 
-    public function setCookie($cc) {
-    	$this->cookie = $cc;
-    }
+class Check extends ApiBoa {
 
-    public function getCookie() {
-    	return $this->cookie;
-    }
-
-    public function setProxy($pr) {
-    	$this->proxy = $pr;
-    }
-
-    public function getProxy() {
-    	return $this->proxy;
-    }
-
-    public function run(){
-
-        $Util      = new Util();
+    public function check() {
 
         $cookies   = $this->getCookie();
         $proxy     = $this->getProxy();
-        $userAgent = $this->userAgent;
+        $userAgent = $this->getAgent();
 
         $url9       = "https://consumer.bvsnet.com.br/FamiliaConsumer/relatorio/pessoal/gold";
+
         $headers9   = array();
         $headers9[] = "User-Agent: {$userAgent}";
         $headers9[] = "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
@@ -44,7 +24,7 @@ class Check
         $headers9[] = "Cookie: ". $cookies;
         $headers9[] = "Upgrade-Insecure-Requests: 1";
 
-        $ver9  = $Util->curl($url9, null, null, true, $url9, false, $proxy, $headers9, 5);
+        $ver9  = $this->curl($url9, null, null, true, $url9, false, $proxy, $headers9, 5);
 
         if(stristr($ver9, 'Pessoal Gold</h2>')){
         	return true;
@@ -53,6 +33,5 @@ class Check
         }else{
             return 'rede';
         }
-
     }
 }
